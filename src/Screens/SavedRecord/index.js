@@ -200,40 +200,52 @@
 // }
 
 // export default SavedRecordScreen;
-
 import * as React from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { useState } from 'react';
-
-
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { useState, useEffect } from 'react';
 
 function SavedRecordScreen({ route }) {
   const entryData = route?.params?.entryData || {};
-  // const { roomName, userName, entryDate } = entryData;
   const { roomNo, user, entryDate, entryTime } = entryData;
 
-  console.log("Received entryData in SavedRecordScreen:", entryData);
+  // const [entries, setEntries] = useState([]);
+  const [entries, setEntries] = useState([
+  ]);
+  
+
+  // Append new entry when `entryData` changes
+  useEffect(() => {
+    if (roomNo && user && entryDate && entryTime) {
+      setEntries((prevEntries) => [
+        ...prevEntries,
+        { roomNo, user, entryDate, entryTime, id: Date.now().toString() },
+      ]);
+    }
+  }, [entryData]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Visited Rooms</Text>
 
-      {/* Show card if entry data is received */}
-      {roomNo && user && entryDate && entryTime ? (
-  <View style={styles.card}>
-    <Text style={styles.cardText}> Room: {roomNo}</Text>
-    <Text style={styles.cardText}> User: {user}</Text>
-    <Text style={styles.cardText}> Entry Date: {entryDate}</Text>
-    <Text style={styles.cardText}> Entry Time: {entryTime}</Text>
-  </View>
-) : (
-  <Text style={styles.noEntryText}>No entry done</Text>
-)}
-
+      {entries.length > 0 ? (
+        <FlatList
+          data={entries}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <Text style={styles.cardText}>Room: {item.roomNo}</Text>
+              <Text style={styles.cardText}>User: {item.user}</Text>
+              <Text style={styles.cardText}>Entry Date: {item.entryDate}</Text>
+              <Text style={styles.cardText}>Entry Time: {item.entryTime}</Text>
+            </View>
+          )}
+        />
+      ) : (
+        <Text style={styles.noEntryText}>No entry done</Text>
+      )}
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -250,7 +262,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f5f5',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -268,35 +280,6 @@ const styles = StyleSheet.create({
     color: 'gray',
     textAlign: 'center',
     marginBottom: 20,
-  },
-  userContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  username: {
-    fontSize: 18,
-    fontWeight: '500',
-  },
-  email: {
-    fontSize: 14,
-    color: 'gray',
-  },
-  deleteButton: {
-    backgroundColor: '#ff5c5c',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  deleteButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  disabledButtonText: {
-    color: 'gray',
   },
 });
 
